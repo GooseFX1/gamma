@@ -39,6 +39,9 @@ pub mod create_pool_fee_reveiver {
 }
 
 pub const AUTH_SEED: &str = "vault_and_lp_mint_auth_seed";
+pub const GLOBAL_REWARD_INFO_SEED: &str = "global_reward_info_seed";
+pub const REWARD_VAULT_SEED: &str = "reward_vault_seed";
+pub const REWARD_INFO_SEED: &str = "reward_info_seed";
 
 #[program]
 pub mod gamma {
@@ -233,6 +236,15 @@ pub mod gamma {
             minimum_token_0_amount,
             minimum_token_1_amount,
         )
+    }
+
+    pub fn create_rewards(
+        ctx: Context<CreateRewards>,
+        start_time: u64,
+        end_time: u64,
+        reward_amount: u64,
+    ) -> Result<()> {
+        instructions::create_rewards(ctx, start_time, end_time, reward_amount)
     }
 
     /// Swap the tokens in the pool base input amount

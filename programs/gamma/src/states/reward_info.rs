@@ -12,9 +12,8 @@ pub struct RewardInfo {
 }
 
 impl RewardInfo {
+    // Even if the current time is less than the start time, the reward is still considered active.
     pub fn is_active(&self, current_time: u64) -> bool {
-        // Start time is before the current time and either the end time is after the current time or there is still rewards left in escrow.
-        self.start_at <= current_time
-            && (self.end_rewards_at > current_time || self.total_left_in_escrow > 0)
+        self.end_rewards_at > current_time || self.total_left_in_escrow > 0
     }
 }

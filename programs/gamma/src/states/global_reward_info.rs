@@ -8,7 +8,11 @@ pub struct GlobalRewardInfo {
     // This contains the 3 active boosted rewards, i.e. all rewards that are not fully distributed
     // And the current time maybe exceeds the end time of the last boosted reward
     // There is never a proper endtime of the rewards we can even have active boosted rewards if they are not fully distributed yet.
+    // Any reward that is not started yet is also consider active.
     pub active_boosted_reward_info: [Pubkey; 3],
+
+    // This contains the minimum start time of all active boosted rewards
+    pub min_start_time: u64,
 
     pub snapshots: VecDeque<Snapshot>,
 }
@@ -27,13 +31,14 @@ pub struct Snapshot {
 }
 
 impl GlobalRewardInfo {
-    pub fn add_new_active_reward(&mut self, reward_info: Pubkey) {
+    pub fn add_new_active_reward(&mut self, reward_info: Pubkey, start_time: u64) {
         for i in 0..3 {
             if self.active_boosted_reward_info[i] == Pubkey::default() {
                 self.active_boosted_reward_info[i] = reward_info;
                 return;
             }
         }
+        self.min_start_time = self.min_start_time.min(start_time);
     }
 
     pub fn add_snapshot(&mut self, total_lp_amount: u64, timestamp: u64) {
@@ -76,6 +81,7 @@ impl GlobalRewardInfo {
             self.snapshots.clear();
             return;
         }
+        // TODO: also drop any snapshot that is before the start time of the reward.
 
         while let Some(snapshot) = self.snapshots.front() {
             let is_reward_one_fully_distributed_until_this_snapshot =
